@@ -3,6 +3,9 @@ syntax: glob
 .dotnet
 .packages
 
+# Don't check in the artifacts!
+artifacts/
+
 ### VisualStudio ###
 
 # User-specific files
