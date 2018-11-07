@@ -5,14 +5,13 @@ variables:
   ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'github')) }}:
     _HelixType: build/product
     _HelixSource: pr/Microsoft/clrmd/$(Build.SourceBranch)
-    EnableMicrobuild: false
 
   # Variables for internal Official builds
   ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'official')) }}:
     _HelixType: build/product
     _HelixSource: official/Microsoft/clrmd/$(Build.SourceBranch)
-    _SignType: test # Change to real once we have signing approval
-    EnableMicrobuild: true
+    _SignArgs: /p:DotNetSignType=test /p:TeamName=DotNetCore
+    _OfficialBuildIdArgs: /p:OfficialBuildId=$(Build.BuildNumber)
  
 resources:
   containers:
@@ -51,6 +50,8 @@ phases:
     - script: eng\common\cibuild.cmd
         -configuration $(_BuildConfig)
         -prepareMachine
+        $(_SignArgs)
+        $(_OfficialBuildIdArgs)
       name: Build
       displayName: Build
       condition: succeeded()
