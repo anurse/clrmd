@@ -46,6 +46,9 @@ phases:
         release_configuration:
           _BuildConfig: Release
     steps:
+    - script: src\TestTargets\build_test_assets.cmd
+      displayName: Build Test Assets
+      condition: succeeded()
     - script: eng\common\cibuild.cmd
         -configuration $(_BuildConfig)
         -prepareMachine
