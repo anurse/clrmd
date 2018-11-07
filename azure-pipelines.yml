@@ -5,12 +5,14 @@ variables:
   ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'github')) }}:
     _HelixType: build/product
     _HelixSource: pr/Microsoft/clrmd/$(Build.SourceBranch)
+    EnableMicrobuild: false
 
   # Variables for internal Official builds
   ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'official')) }}:
     _HelixType: build/product
     _HelixSource: official/Microsoft/clrmd/$(Build.SourceBranch)
     _SignType: test # Change to real once we have signing approval
+    EnableMicrobuild: true
  
 resources:
   containers:
@@ -30,6 +32,7 @@ phases:
   parameters:
     name: Windows_NT
     enableTelemetry: true
+    enableMicrobuild: $(EnableMicrobuild)
     queue:
       # agent pool can't be read from a user-defined variable (Azure DevOps limitation)
       ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'github')) }}:
@@ -49,6 +52,13 @@ phases:
       name: Build
       displayName: Build
       condition: succeeded()
+    - task: PublishTestResults@2
+      displayName: Publish Test Results to VSTS
+      condition: always()
+      continueOnError: true
+      inputs:
+        testRunner: junit
+        testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
       displayName: Publish Logs to VSTS
       inputs:
@@ -80,6 +90,13 @@ phases:
       name: Build
       displayName: Build
       condition: succeeded()
+    - task: PublishTestResults@2
+      displayName: Publish Test Results to VSTS
+      condition: always()
+      continueOnError: true
+      inputs:
+        testRunner: junit
+        testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
       displayName: Publish Logs to VSTS
       inputs:
