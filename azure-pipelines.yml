@@ -1,7 +1,18 @@
 variables:
   Build.Repository.Clean: true
-  _HelixType: build/product
-  _HelixSource: pr/Microsoft/clrmd/$(Build.SourceBranch)
+  
+  # Variables for public PR builds
+  ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'github')) }}:
+    _HelixType: build/product
+    _HelixSource: pr/Microsoft/clrmd/$(Build.SourceBranch)
+    WindowsQueueName: dotnet-external-temp
+
+  # Variables for internal Official builds
+  ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.DefinitionName'], 'official')) }}:
+    _HelixType: build/product
+    _HelixSource: official/Microsoft/clrmd/$(Build.SourceBranch)
+    _SignType: test # Change to real once we have signing approval
+    WindowsQueueName: dotnet-internal-temp
  
 resources:
   containers:
@@ -22,7 +33,7 @@ phases:
     name: Windows_NT
     enableTelemetry: true
     queue:
-      name: dotnet-external-temp
+      name: $(WindowsQueueName)
       parallel: 99
       matrix:
         debug_configuration:
