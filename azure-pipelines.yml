@@ -42,9 +42,9 @@ phases:
         name: DotNetCore-Windows
       parallel: 99
       matrix:
-        debug_configuration:
+        debug:
           _BuildConfig: Debug
-        release_configuration:
+        release:
           _BuildConfig: Release
     steps:
     - script: eng\common\cibuild.cmd
@@ -56,18 +56,26 @@ phases:
       displayName: Build
       condition: succeeded()
     - task: PublishTestResults@2
-      displayName: Publish xUnit Test Results to VSTS
+      displayName: Publish xUnit Test Results
       condition: always()
       continueOnError: true
       inputs:
         testRunner: xunit
         testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
-      displayName: Publish Logs to VSTS
+      displayName: Publish Packages
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/artifacts/packages/$(_BuildConfig)'
+        PublishLocation: Container
+        ArtifactName: Packages_$(Agent.Os)_$(Agent.JobName)
+      continueOnError: true
+      condition: always()
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Logs
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
         PublishLocation: Container
-        ArtifactName: $(Agent.Os)_$(Agent.JobName)
+        ArtifactName: Logs_$(Agent.Os)_$(Agent.JobName)
       continueOnError: true
       condition: always()
     variables:
@@ -82,9 +90,9 @@ phases:
       parallel: 99
       container: LinuxContainer
       matrix:
-        debug_configuration:
+        debug:
           _BuildConfig: Debug
-        release_configuration:
+        release:
           _BuildConfig: Release
     steps:
     - script: eng/common/cibuild.sh
@@ -94,18 +102,18 @@ phases:
       displayName: Build
       condition: succeeded()
     - task: PublishTestResults@2
-      displayName: Publish xUnit Test Results to VSTS
+      displayName: Publish xUnit Test Results
       condition: always()
       continueOnError: true
       inputs:
         testRunner: xunit
         testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
-      displayName: Publish Logs to VSTS
+      displayName: Publish Logs
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
         PublishLocation: Container
-        ArtifactName: $(Agent.Os)_$(Agent.JobName)
+        ArtifactName: Logs_$(Agent.Os)_$(Agent.JobName)
       continueOnError: true
       condition: always()
     variables:
