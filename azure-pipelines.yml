@@ -53,11 +53,11 @@ phases:
       displayName: Build
       condition: succeeded()
     - task: PublishTestResults@2
-      displayName: Publish Test Results to VSTS
+      displayName: Publish xUnit Test Results to VSTS
       condition: always()
       continueOnError: true
       inputs:
-        testRunner: junit
+        testRunner: xunit
         testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
       displayName: Publish Logs to VSTS
@@ -91,11 +91,11 @@ phases:
       displayName: Build
       condition: succeeded()
     - task: PublishTestResults@2
-      displayName: Publish Test Results to VSTS
+      displayName: Publish xUnit Test Results to VSTS
       condition: always()
       continueOnError: true
       inputs:
-        testRunner: junit
+        testRunner: xunit
         testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
     - task: PublishBuildArtifacts@1
       displayName: Publish Logs to VSTS
